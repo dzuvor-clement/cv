@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Create your secure Northstar CV account.">
+  <title>Register | Northstar CV</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="page.css">
+</head>
+<body class="auth-page">
+  <header class="topbar">
+    <a class="brand" href="login.html" aria-label="Northstar CV home"><span class="brand-mark">N</span><span>Northstar <em>CV</em></span></a>
+  </header>
+
+  <main class="auth-shell register-shell">
+    <section class="auth-hero">
+      <div class="hero-index"><span>02</span><span>Start your workspace</span></div>
+      <p class="eyebrow">Create your account</p>
+      <h1>Your next chapter<br><span>starts here.</span></h1>
+      <p>Create a secure account, verify your contact, and keep your CV ready whenever opportunity calls.</p>
+      <div class="auth-benefits"><div><strong>01</strong><span>Choose email or phone verification</span></div><div><strong>02</strong><span>Protect your work with your own account</span></div><div><strong>03</strong><span>Update your CV whenever you need</span></div></div>
+    </section>
+
+    <section class="account-box account-card" aria-labelledby="accountTitle">
+      <div class="account-header">
+        <div>
+          <p class="eyebrow account-eyebrow">Secure registration</p>
+          <h2 id="accountTitle">Create your account</h2>
+        </div>
+        <span class="secure-mark" aria-hidden="true">&#10003;</span>
+      </div>
+      <p id="accountStatus">Verify your email or phone to keep your CV secure.</p>
+
+      <form id="signupForm" class="auth-form">
+        <label class="auth-label">Full name<input type="text" name="name" autocomplete="name" placeholder="John Doe" required></label>
+        <div class="auth-row">
+          <label class="auth-label">Use<select name="identifierType" aria-label="Account contact type"><option value="email">Email</option><option value="phone">Phone</option></select></label>
+          <label class="auth-label">Contact<input id="registerIdentifier" type="text" name="identifier" autocomplete="email" placeholder="you@example.com" required></label>
+        </div>
+        <label class="auth-label">Create password<input type="password" name="password" autocomplete="new-password" placeholder="At least 6 characters" minlength="6" required></label>
+        <label class="auth-label">Confirm password<input type="password" name="confirmPassword" autocomplete="new-password" placeholder="Re-enter your password" minlength="6" required></label>
+        <button type="submit" class="button button-dark">Create account</button>
+      </form>
+
+      <div id="otpSection" class="otp-box" hidden>
+        <label for="otpCode">Verification code</label>
+        <div class="otp-row">
+          <input id="otpCode" type="text" name="otpCode" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="123456">
+          <button type="button" id="verifyOtpButton" class="button button-dark">Verify</button>
+        </div>
+        <p id="otpMessage">Enter the one-time code sent to your contact.</p>
+      </div>
+
+      <p class="register-prompt">Already have an account? <a href="login.html">Login</a></p>
+    </section>
+  </main>
+
+  <footer class="footer">Northstar CV Builder <span>•</span> Your next chapter starts on paper.</footer>
+  <script src="main.js"></script>
+</body>
+</html>

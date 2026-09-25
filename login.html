@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Secure access to your Northstar CV workspace.">
+  <title>Login | Northstar CV</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="page.css">
+</head>
+<body class="auth-page">
+  <header class="topbar">
+    <a class="brand" href="login.html" aria-label="Northstar CV home"><span class="brand-mark">N</span><span>Northstar <em>CV</em></span></a>
+  </header>
+
+  <main class="auth-shell">
+    <section class="auth-hero">
+      <div class="hero-index"><span>01</span><span>Northstar workspace</span></div>
+      <p class="eyebrow">Your private workspace</p>
+      <h1>Make your work<br><span>stand out.</span></h1>
+      <p>Build a considered CV, keep every detail close, and return whenever your next opportunity appears.</p>
+      <div class="auth-benefits"><div><strong>01</strong><span>Live, print-ready layout</span></div><div><strong>02</strong><span>Secure account-linked storage</span></div><div><strong>03</strong><span>Verified access by email or phone</span></div></div>
+    </section>
+
+    <section class="account-box account-card" aria-labelledby="accountTitle">
+      <div class="account-header">
+        <div>
+          <p class="eyebrow account-eyebrow">Secure access</p>
+          <h2 id="accountTitle">Welcome back</h2>
+        </div>
+        <span class="secure-mark" aria-hidden="true">&#10003;</span>
+      </div>
+      <p id="accountStatus">Login to enter your CV workspace.</p>
+
+      <form id="loginForm" class="auth-form">
+        <label class="auth-label">Email or phone number<input type="text" name="loginIdentifier" autocomplete="username" placeholder="you@example.com" required></label>
+        <label class="auth-label">Password<input type="password" name="loginPassword" autocomplete="current-password" placeholder="Your password" required></label>
+        <button type="submit" class="button button-dark">Login</button>
+        <button type="button" id="forgotPasswordButton" class="text-button">Forgot password?</button>
+      </form>
+
+      <p class="register-prompt">Don't have an account? <a href="register.html">Register</a></p>
+
+      <div id="otpSection" class="otp-box" hidden>
+        <label for="otpCode">Verification code</label>
+        <div class="otp-row">
+          <input id="otpCode" type="text" name="otpCode" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="123456">
+          <button type="button" id="verifyOtpButton" class="button button-dark">Verify</button>
+        </div>
+        <p id="otpMessage">Enter the one-time code sent to your contact.</p>
+      </div>
+
+      <div id="resetSection" class="reset-box" hidden>
+        <div class="reset-heading"><strong>Reset your password</strong><button type="button" id="cancelResetButton" class="text-button">Back to login</button></div>
+        <p>We will send a one-time code to your verified email or phone.</p>
+        <form id="resetRequestForm" class="auth-form">
+          <div class="auth-row">
+            <label class="auth-label">Send code by<select name="resetIdentifierType"><option value="email">Email</option><option value="phone">Phone</option></select></label>
+            <label class="auth-label">Contact<input id="resetIdentifier" type="text" name="resetIdentifier" autocomplete="email" placeholder="you@example.com" required></label>
+          </div>
+          <button type="submit" class="button button-outline">Send reset code</button>
+        </form>
+        <form id="resetPasswordForm" class="auth-form" hidden>
+          <label class="auth-label">Reset code<input type="text" name="resetOtp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="123456" required></label>
+          <label class="auth-label">New password<input type="password" name="resetPassword" autocomplete="new-password" placeholder="At least 6 characters" minlength="6" required></label>
+          <label class="auth-label">Confirm new password<input type="password" name="confirmResetPassword" autocomplete="new-password" placeholder="Re-enter your new password" minlength="6" required></label>
+          <button type="submit" class="button button-dark">Update password</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">Northstar CV Builder <span>•</span> Your next chapter starts on paper.</footer>
+  <script src="main.js"></script>
+</body>
+</html>

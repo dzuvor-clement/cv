@@ -1,0 +1,51 @@
+CREATE DATABASE IF NOT EXISTS cv_generator CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE cv_generator;
+
+CREATE TABLE IF NOT EXISTS users (
+  id CHAR(36) NOT NULL PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  email VARCHAR(180) NULL,
+  phone VARCHAR(30) NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  is_verified TINYINT(1) NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_email (email),
+  UNIQUE KEY unique_phone (phone)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS otp_verifications (
+  id CHAR(36) NOT NULL PRIMARY KEY,
+  identifier VARCHAR(255) NOT NULL,
+  channel ENUM('email', 'phone') NOT NULL,
+  name VARCHAR(120) NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  otp_hash VARCHAR(255) NOT NULL,
+  expires_at DATETIME NOT NULL,
+  used_at DATETIME NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_identifier_channel (identifier, channel)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS password_resets (
+  id CHAR(36) NOT NULL PRIMARY KEY,
+  user_id CHAR(36) NOT NULL,
+  identifier VARCHAR(255) NOT NULL,
+  channel ENUM('email', 'phone') NOT NULL,
+  otp_hash VARCHAR(255) NOT NULL,
+  expires_at DATETIME NOT NULL,
+  used_at DATETIME NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_password_reset_identifier (identifier, channel),
+  CONSTRAINT fk_password_resets_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS cvs (
+  id CHAR(36) NOT NULL PRIMARY KEY,
+  user_id CHAR(36) NOT NULL UNIQUE,
+  title VARCHAR(150) NOT NULL DEFAULT 'My CV',
+  cv_data JSON NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_cvs_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
