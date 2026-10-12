@@ -1,14 +1,16 @@
 const blankStarter = {
-  basics: { name: '', headline: '', email: '', phone: '', location: '', website: '' },
+  basics: { name: '', headline: '', email: '', phone: '', location: '', website: '', dob: '' },
   summary: '',
-  skills: '',
+  skills: 'Communication, Leadership, Teamwork, Engineering, Problem solving, Time management',
   experience: [{ title: '', company: '', location: '', dates: '', achievements: '' }],
   education: [{ degree: '', school: '', location: '', dates: '' }],
-  toggles: { summary: false, certifications: false, awards: false, publications: false, memberships: false },
+  toggles: { summary: true, certifications: false, awards: false, publications: false, memberships: false, positions: false, references: false },
   certifications: [],
   awards: [],
   publications: [],
-  memberships: []
+  memberships: [],
+  positions: [],
+  references: []
 };
 
 const starter = JSON.parse(JSON.stringify(blankStarter));
@@ -20,7 +22,6 @@ const userIdKey = 'northstar-user-id';
 
 let currentUser = JSON.parse(localStorage.getItem(userKey) || 'null');
 let cvId = currentUser?.id || localStorage.getItem(cvIdKey) || crypto.randomUUID();
-let pendingOtpData = null;
 let pendingResetData = null;
 let serverSaveTimer;
 
@@ -156,10 +157,12 @@ const config = {
     label: 'Education',
     fields: [['degree', 'Degree or diploma'], ['school', 'Institution'], ['location', 'Location'], ['dates', 'Graduation or expected date']]
   },
-  certifications: { label: 'Certification', fields: [['name', 'Certification or license'], ['detail', 'Issuer and date']] },
-  awards: { label: 'Award', fields: [['name', 'Award or honor'], ['detail', 'Organization and date']] },
-  publications: { label: 'Publication', fields: [['name', 'Title or presentation'], ['detail', 'Publication, event, or date']] },
-  memberships: { label: 'Membership', fields: [['name', 'Professional body'], ['detail', 'Membership level or date']] }
+  certifications: { label: 'Certification', fields: [['name', 'Certification or license'], ['issuer', 'Issuer'], ['date', 'Date obtained']] },
+  awards: { label: 'Award', fields: [['name', 'Award or honor'], ['organization', 'Organization'], ['date', 'Date awarded']] },
+  publications: { label: 'Publication', fields: [['name', 'Title or presentation'], ['publisher', 'Publisher or event'], ['date', 'Publication or date']] },
+  memberships: { label: 'Membership', fields: [['name', 'Professional body'], ['level', 'Membership level'], ['date', 'Date joined or expiry']] },
+  positions: { label: 'Position', fields: [['name', 'Position title'], ['organization', 'Organization'], ['dates', 'Dates']] },
+  references: { label: 'Reference', fields: [['name', 'Referee name'], ['role', 'Role or title'], ['organization', 'Organization'], ['contact', 'Phone or email']] }
 };
 
 normalizeData();
@@ -189,8 +192,17 @@ function entryFields(type) {
 function renderFields() {
   document.querySelector('#experienceFields').innerHTML = entryFields('experience');
   document.querySelector('#educationFields').innerHTML = entryFields('education');
+  document.querySelector('#referencesFields').innerHTML = `
+    <div class="optional-fields">
+      <div class="section-heading">
+        <strong>${config.references.label}s</strong>
+        <button class="add-button" type="button" data-add="references">+ Add</button>
+      </div>
+      ${entryFields('references')}
+    </div>
+  `;
   document.querySelector('#optionalFields').innerHTML = Object.keys(config)
-    .filter(type => !['experience', 'education'].includes(type) && data.toggles[type])
+    .filter(type => !['experience', 'education', 'references'].includes(type) && data.toggles[type])
     .map(type => `
       <div class="optional-fields">
         <div class="section-heading">
@@ -219,46 +231,86 @@ function section(title, content) {
 
 function renderPreview() {
   const b = data.basics;
-  const contacts = [b.email, b.phone, b.location, b.website].filter(Boolean).map(escapeHtml);
+  const contacts = [b.phone, b.email, b.dob, b.location, b.website].filter(Boolean).map(escapeHtml);
+
+  const optionalMeta = (type, entry) => {
+    if (type === 'positions') {
+      return [entry.organization, entry.dates].filter(Boolean).join(' · ');
+    }
+
+    if (type === 'references') {
+      return [entry.role, entry.organization, entry.contact].filter(Boolean).join(' · ');
+    }
+
+    return entry.detail || '';
+  };
+
+  const summaryText = (data.summary || '').trim();
+  const allSkills = (data.skills || '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+  const personalAttributes = allSkills.slice(0, Math.min(5, allSkills.length));
+  const technicalSkills = allSkills.slice(Math.min(5, allSkills.length));
 
   const experience = data.experience.filter(e => e.title || e.company).map(e => `
     <article class="cv-entry">
-      <div class="entry-head"><strong>${escapeHtml(e.title)}</strong><span class="entry-date">${escapeHtml(e.dates)}</span></div>
+      <div class="entry-head">
+        <strong>${escapeHtml(e.title)}</strong>
+        <span class="entry-date">${escapeHtml(e.dates)}</span>
+      </div>
       <div class="entry-sub">${escapeHtml([e.company, e.location].filter(Boolean).join(' · '))}</div>
-      <ul class="entry-description">${escapeHtml(e.achievements).split('\n').filter(Boolean).map(item => `<li>${item}</li>`).join('')}</ul>
+      <ul class="entry-description">${escapeHtml(e.achievements || '').split('\n').filter(Boolean).map(item => `<li>${item}</li>`).join('')}</ul>
     </article>
   `).join('');
 
   const education = data.education.filter(e => e.degree || e.school).map(e => `
     <article class="cv-entry">
-      <div class="entry-head"><strong>${escapeHtml(e.degree)}</strong><span class="entry-date">${escapeHtml(e.dates)}</span></div>
+      <div class="entry-head">
+        <strong>${escapeHtml(e.degree || e.school)}</strong>
+        <span class="entry-date">${escapeHtml(e.dates)}</span>
+      </div>
       <div class="entry-sub">${escapeHtml([e.school, e.location].filter(Boolean).join(' · '))}</div>
     </article>
   `).join('');
 
-  const skills = data.skills.split(',').map(s => s.trim()).filter(Boolean).map(s => `<span class="skill">${escapeHtml(s)}</span>`).join('');
-
   const optional = Object.keys(config)
-    .filter(type => !['experience', 'education'].includes(type) && data.toggles[type])
-    .map(type => section(config[type].label + 's', (data[type] || []).filter(e => e.name).map(e => `
+    .filter(type => !['experience', 'education', 'references'].includes(type) && data.toggles[type])
+    .map(type => section(config[type].label + 's', (data[type] || []).filter(e => e.name || e.detail || e.organization || e.dates || e.role || e.contact).map(e => `
       <article class="cv-entry">
         <div class="entry-head"><strong>${escapeHtml(e.name)}</strong></div>
-        <div class="entry-sub">${escapeHtml(e.detail)}</div>
+        <div class="entry-sub">${escapeHtml(optionalMeta(type, e))}</div>
       </article>
     `).join('')))
     .join('');
 
+  const references = (data.references || []).filter(e => e.name || e.detail || e.role || e.organization || e.contact).map(e => `
+    <article class="cv-entry">
+      <div class="entry-head"><strong>${escapeHtml(e.name || 'Reference')}</strong></div>
+      <div class="entry-sub">${escapeHtml(optionalMeta('references', e) || e.detail || '')}</div>
+    </article>
+  `).join('') || '';
+
   document.querySelector('#cvPreview').innerHTML = `
     <header class="cv-head">
-      <h1>${escapeHtml(b.name) || 'Your Name'}</h1>
-      <h3>${escapeHtml(b.headline) || 'Your professional headline'}</h3>
+      <h2 class="cv-title">CURRICULUM VITAE</h2>
+      <h3 class="cv-name">${escapeHtml(b.name) || 'YOUR NAME'}</h3>
       <div class="contact-line">${contacts.length ? contacts.map(c => `<span>${c}</span>`).join('') : 'Add your contact details in the editor'}</div>
     </header>
-    ${data.toggles.summary ? section('Profile', data.summary ? `<p class="cv-summary">${escapeHtml(data.summary)}</p>` : '<p class="empty-preview">Your profile summary will appear here.</p>') : ''}
-    ${experience ? section('Experience', experience) : ''}
-    ${education ? section('Education', education) : ''}
-    ${skills ? section('Skills', `<div class="skills-list">${skills}</div>`) : ''}
+
+    ${summaryText ? section('PROFESSIONAL SUMMARY', `<p class="cv-summary"><strong>Career Objective</strong><br>${escapeHtml(summaryText)}</p>`) : ''}
+
+    ${personalAttributes.length ? section('KEY PERSONAL ATTRIBUTES', `
+      <ul class="entry-description">${personalAttributes.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
+    `) : ''}
+
+    ${education ? section('EDUCATION', education) : ''}
+    ${experience ? section('WORK EXPERIENCE', experience) : ''}
+    ${technicalSkills.length ? section('TECHNICAL SKILLS', `
+      <ul class="entry-description">${technicalSkills.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
+    `) : ''}
     ${optional}
+    ${references ? section('REFERENCES', references) : ''}
   `;
 }
 
@@ -310,7 +362,7 @@ async function handleSignup(event) {
   }
 
   try {
-    const response = await fetch(`${apiUrl}?action=send-otp`, {
+    const response = await fetch(`${apiUrl}?action=register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -327,10 +379,6 @@ async function handleSignup(event) {
     cvId = currentUser.id;
     localStorage.setItem(cvIdKey, currentUser.id);
 
-    const otpSection = document.querySelector('#otpSection');
-    if (otpSection) otpSection.hidden = true;
-    pendingOtpData = null;
-
     if (!document.querySelector('#cvPreview')) {
       window.location.replace('index.html');
       return;
@@ -342,56 +390,6 @@ async function handleSignup(event) {
     if (savedState) savedState.textContent = 'Account ready';
   } catch (error) {
     alert(error.message || 'Unable to create account.');
-  }
-}
-
-async function handleVerifyOtp() {
-  const otpField = document.querySelector('#otpCode');
-  const otpCode = otpField ? otpField.value.trim() : '';
-
-  if (!pendingOtpData || !otpCode) {
-    alert('Please request an OTP and enter the verification code.');
-    return;
-  }
-
-  try {
-    const response = await fetch(`${apiUrl}?action=verify-otp`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        identifierType: pendingOtpData.identifierType,
-        identifier: pendingOtpData.identifier,
-        otp: otpCode
-      })
-    });
-
-    const result = await parseJsonResponse(response);
-    if (!response.ok || !result.success) {
-      throw new Error(result.error || 'OTP verification failed.');
-    }
-
-    currentUser = result.user;
-    localStorage.setItem(userKey, JSON.stringify(currentUser));
-    localStorage.setItem(userIdKey, currentUser.id);
-    cvId = currentUser.id;
-    localStorage.setItem(cvIdKey, currentUser.id);
-
-    const otpSection = document.querySelector('#otpSection');
-    if (otpSection) otpSection.hidden = true;
-    document.querySelector('#signupForm')?.reset();
-    if (otpField) otpField.value = '';
-    pendingOtpData = null;
-
-    updateAccountStatus();
-    if (!document.querySelector('#cvPreview')) {
-      window.location.replace('index.html');
-      return;
-    }
-    await loadFromDatabase();
-    const savedState = document.querySelector('#savedState');
-    if (savedState) savedState.textContent = 'Account verified';
-  } catch (error) {
-    alert(error.message || 'Unable to verify OTP.');
   }
 }
 
@@ -612,7 +610,6 @@ function bind() {
 
   document.querySelector('#signupForm')?.addEventListener('submit', handleSignup);
   document.querySelector('#loginForm')?.addEventListener('submit', handleLogin);
-  document.querySelector('#verifyOtpButton')?.addEventListener('click', handleVerifyOtp);
   document.querySelector('#logoutButton')?.addEventListener('click', handleLogout);
 }
 
@@ -627,7 +624,6 @@ if (document.querySelector('#cvPreview')) {
 } else {
   document.querySelector('#loginForm')?.addEventListener('submit', handleLogin);
   document.querySelector('#signupForm')?.addEventListener('submit', handleSignup);
-  document.querySelector('#verifyOtpButton')?.addEventListener('click', handleVerifyOtp);
 
   document.querySelectorAll('[data-auth-mode]').forEach(button => {
     button.addEventListener('click', () => {

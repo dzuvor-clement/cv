@@ -90,7 +90,7 @@ try {
         $body = json_decode(file_get_contents('php://input'), true, 512, JSON_THROW_ON_ERROR);
         $action = (string) ($_GET['action'] ?? ($body['action'] ?? ''));
 
-        if ($action === 'send-otp') {
+        if ($action === 'register' || $action === 'send-otp') {
             $name = trim((string) ($body['name'] ?? ''));
             $identifierType = strtolower(trim((string) ($body['identifierType'] ?? 'email')));
             $identifier = trim((string) ($body['identifier'] ?? ''));
@@ -189,8 +189,8 @@ try {
             }
             $statement = $pdo->prepare(
                 $identifierType === 'email'
-                    ? 'SELECT id FROM users WHERE email = ? AND is_verified = 1 LIMIT 1'
-                    : 'SELECT id FROM users WHERE phone = ? AND is_verified = 1 LIMIT 1'
+                    ? 'SELECT id FROM users WHERE email = ? LIMIT 1'
+                    : 'SELECT id FROM users WHERE phone = ? LIMIT 1'
             );
             $statement->execute([$normalizedIdentifier]);
             $user = $statement->fetch();

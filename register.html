@@ -21,8 +21,8 @@
       <div class="hero-index"><span>02</span><span>Start your workspace</span></div>
       <p class="eyebrow">Create your account</p>
       <h1>Your next chapter<br><span>starts here.</span></h1>
-      <p>Create a secure account, verify your contact, and keep your CV ready whenever opportunity calls.</p>
-      <div class="auth-benefits"><div><strong>01</strong><span>Choose email or phone verification</span></div><div><strong>02</strong><span>Protect your work with your own account</span></div><div><strong>03</strong><span>Update your CV whenever you need</span></div></div>
+      <p>Create a secure account and keep your CV ready whenever opportunity calls.</p>
+      <div class="auth-benefits"><div><strong>01</strong><span>Use email or phone to sign in</span></div><div><strong>02</strong><span>Protect your work with your own account</span></div><div><strong>03</strong><span>Update your CV whenever you need</span></div></div>
     </section>
 
     <section class="account-box account-card" aria-labelledby="accountTitle">
@@ -33,7 +33,7 @@
         </div>
         <span class="secure-mark" aria-hidden="true">&#10003;</span>
       </div>
-      <p id="accountStatus">Verify your email or phone to keep your CV secure.</p>
+      <p id="accountStatus">Create your account to keep your CV secure.</p>
 
       <form id="signupForm" class="auth-form">
         <label class="auth-label">Full name<input type="text" name="name" autocomplete="name" placeholder="John Doe" required></label>
@@ -46,20 +46,10 @@
         <button type="submit" class="button button-dark">Create account</button>
       </form>
 
-      <div id="otpSection" class="otp-box" hidden>
-        <label for="otpCode">Verification code</label>
-        <div class="otp-row">
-          <input id="otpCode" type="text" name="otpCode" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="123456">
-          <button type="button" id="verifyOtpButton" class="button button-dark">Verify</button>
-        </div>
-        <p id="otpMessage">Enter the one-time code sent to your contact.</p>
-      </div>
-
       <p class="register-prompt">Already have an account? <a href="login.html">Login</a></p>
     </section>
   </main>
 
-  <footer class="footer">Northstar CV Builder <span>•</span> Your next chapter starts on paper.</footer>
   <script src="main.js"></script>
 </body>
 </html>
